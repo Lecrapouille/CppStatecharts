@@ -102,7 +102,7 @@ bool State::activate(Metadata& p_data, Parameter& p_param)
     // Schedule timeout transitions associated with this state.
     if (m_statechart != nullptr)
     {
-        for (Transition* t : m_transitions)
+        for (const Transition* t : m_transitions)
         {
             auto* timeout = dynamic_cast<TimeoutEvent*>(t->event());
             if (timeout != nullptr)
@@ -136,7 +136,7 @@ void State::deactivate(Metadata& p_data, Parameter& p_param)
         return;
     }
 
-    StateRuntimedata* runtimedata = p_data.getData(this);
+    const StateRuntimedata* runtimedata = p_data.getData(this);
     if (runtimedata != nullptr && m_statechart != nullptr)
     {
         for (EventQueueEntry* entry : runtimedata->timeoutEvents)

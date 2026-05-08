@@ -156,12 +156,19 @@ protected:
 
 protected:
 
+    //@brief The entry action to be executed when the state is activated.
     Action m_entryAction;
+    //@brief The do action to be executed when the state is activated.
     Action m_doAction;
+    //@brief The exit action to be executed when the state is deactivated.
     Action m_exitAction;
+    //@brief The list of transitions outgoing from this state.
     std::vector<Transition*> m_transitions;
+    //@brief The parent context of this state.
     Context* m_context = nullptr;
+    //@brief The owning statechart of this state.
     Statechart* m_statechart = nullptr;
+    //@brief The name of this state.
     std::string m_name;
 
     friend class Transition;

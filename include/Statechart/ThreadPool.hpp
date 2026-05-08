@@ -94,10 +94,15 @@ private:
 
     void workerLoop();
 
+    //@brief Mutex protecting the task queue.
     mutable std::mutex m_mutex;
+    //@brief Condition variable to notify workers of new tasks.
     std::condition_variable m_condition;
+    //@brief Queue of tasks to be executed.
     std::queue<std::function<void()>> m_tasks;
-    std::vector<std::thread> m_workers;
+    //@brief Vector of worker threads.
+    std::vector<std::jthread> m_workers;
+    //@brief Atomic flag to indicate if the pool has been shut down.
     std::atomic<bool> m_shutdown{false};
 };
 

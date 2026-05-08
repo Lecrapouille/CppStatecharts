@@ -114,6 +114,7 @@ bool Transition::execute(Event* p_event, Metadata& p_data, Parameter& p_param)
         return false;
     }
 
+    // Deactivate all states in the deactivate list.
     for (State* s : m_deactivate)
     {
         if (s != nullptr)
@@ -122,11 +123,13 @@ bool Transition::execute(Event* p_event, Metadata& p_data, Parameter& p_param)
         }
     }
 
+    // Execute the action.
     if (m_action)
     {
         m_action(p_data, p_param);
     }
 
+    // Activate all states in the activate list.
     for (std::size_t i = 0; i < m_activate.size(); ++i)
     {
         // Implicit activation of a concurrent state: register the next state
@@ -140,7 +143,7 @@ bool Transition::execute(Event* p_event, Metadata& p_data, Parameter& p_param)
                 StateRuntimedata* cd = p_data.createRuntimedata(concurrent);
                 State* region = m_activate[i + 1];
                 bool already = false;
-                for (State* s : cd->stateset)
+                for (const State* s : cd->stateset)
                 {
                     if (s == region)
                     {
@@ -203,14 +206,15 @@ void Transition::calculateStateSet(State* p_start,
                                    std::vector<State*>& p_deactivate,
                                    std::vector<State*>& p_activate)
 {
-    std::vector<State*> a;
-    std::vector<State*> d;
+    // Least common ancestors (LCA)
+    std::vector<State*> activate;
+    std::vector<State*> deactivate;
 
     // Walk up from start to root, building the deactivate path top-down.
     State* s = p_start;
     while (s != nullptr)
     {
-        d.insert(d.begin(), s);
+        deactivate.insert(deactivate.begin(), s);
         Context* ctx = s->context();
         if (ctx != nullptr && dynamic_cast<Statechart*>(ctx) == nullptr)
         {
@@ -226,7 +230,9 @@ void Transition::calculateStateSet(State* p_start,
     State* e = p_end;
     while (e != nullptr)
     {
-        a.insert(a.begin(), e);
+        activate.insert(activate.begin(), e);
+
+        // If context is hierarchical or concurrent state, get it as parent.
         Context* ctx = e->context();
         if (ctx != nullptr && dynamic_cast<Statechart*>(ctx) == nullptr)
         {
@@ -238,27 +244,32 @@ void Transition::calculateStateSet(State* p_start,
         }
     }
 
-    const std::size_t minSize = (a.size() < d.size()) ? a.size() : d.size();
+    // Get LCA number. It is min-1 by default. Therefore we make sure that
+    // if start equals end, we do not get the whole path up to the root node
+    // if the state is a substate.
+    const std::size_t minSize = (activate.size() < deactivate.size())
+                                    ? activate.size()
+                                    : deactivate.size();
     std::size_t lca = (minSize == 0) ? 0 : minSize - 1;
 
     if (p_start != p_end)
     {
         for (lca = 0; lca < minSize; ++lca)
         {
-            if (a[lca] != d[lca])
+            if (activate[lca] != deactivate[lca])
             {
                 break;
             }
         }
     }
 
-    for (std::size_t j = lca; j < d.size(); ++j)
+    for (std::size_t j = lca; j < deactivate.size(); ++j)
     {
-        p_deactivate.insert(p_deactivate.begin(), d[j]);
+        p_deactivate.insert(p_deactivate.begin(), deactivate[j]);
     }
-    for (std::size_t j = lca; j < a.size(); ++j)
+    for (std::size_t j = lca; j < activate.size(); ++j)
     {
-        p_activate.push_back(a[j]);
+        p_activate.push_back(activate[j]);
     }
 }
 

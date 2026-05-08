@@ -121,10 +121,15 @@ public:
 
 protected:
 
+    //@brief The event which triggers the transition.
     Event* m_event = nullptr;
+    //@brief The guard watching if the transition can trigger or not.
     Guard m_guard;
+    //@brief The action to be executed when the transition triggers.
     Action m_action;
+    //@brief List of all states which must be deactivated when triggering.
     std::vector<State*> m_deactivate;
+    //@brief List of all states which must be activated when triggering.
     std::vector<State*> m_activate;
 
     friend class State;

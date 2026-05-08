@@ -86,7 +86,7 @@ public:
      *
      * @note Framework-internal.
      */
-    bool lookup(Metadata& p_data, Parameter& p_param);
+    bool lookup(Metadata& p_data, Parameter& p_param) const;
 
     bool activate(Metadata& p_data, Parameter& p_param) override;
     bool

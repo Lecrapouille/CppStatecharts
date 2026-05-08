@@ -76,8 +76,11 @@ public:
 
 private:
 
+    //@brief The timeout value in milliseconds.
     std::int64_t m_timeout = 0;
+    //@brief The high part of the unique identifier.
     std::uint64_t m_uuidHigh = 0;
+    //@brief The low part of the unique identifier.
     std::uint64_t m_uuidLow = 0;
 };
 

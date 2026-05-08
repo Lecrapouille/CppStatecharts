@@ -116,7 +116,7 @@ PseudoState::PseudoState(std::string p_name,
     }
 }
 
-bool PseudoState::lookup(Metadata& p_data, Parameter& p_param)
+bool PseudoState::lookup(Metadata& p_data, Parameter& p_param) const
 {
     // For join states: every incoming transition must have its source state
     // active and any guard must accept.
@@ -128,7 +128,7 @@ bool PseudoState::lookup(Metadata& p_data, Parameter& p_param)
             {
                 return false;
             }
-            StateRuntimedata* d = p_data.getData(t->m_deactivate.front());
+            const StateRuntimedata* d = p_data.getData(t->m_deactivate.front());
             if (d == nullptr || !d->active)
             {
                 return false;
@@ -155,7 +155,7 @@ bool PseudoState::lookup(Metadata& p_data, Parameter& p_param)
 bool PseudoState::activate(Metadata& p_data, Parameter& p_param)
 {
     p_data.activate(this);
-    StateRuntimedata* d = p_data.getData(this);
+    const StateRuntimedata* d = p_data.getData(this);
 
     if (m_entryAction)
     {
@@ -199,7 +199,7 @@ bool PseudoState::activate(Metadata& p_data, Parameter& p_param)
                             p_data.createRuntimedata(concurrent);
                         State* region = t->m_activate[i + 1];
                         bool already = false;
-                        for (State* s : cd->stateset)
+                        for (const State* s : cd->stateset)
                         {
                             if (s == region)
                             {
