@@ -165,6 +165,12 @@ bool Statechart::dispatch(Metadata& p_data, Event* p_event, Parameter& p_param)
         rc = current->dispatch(p_data, p_event, p_param);
     }
 
+    // Trigger-less transitions (no event, no guard, or guard always-true)
+    // are handled by feeding @c nullptr to dispatch() until no transition
+    // fires anymore. A cycle of such transitions creates an infinite loop;
+    // we cap the number of consecutive steps and throw a dedicated
+    // exception so the modelling mistake is reported instead of hanging.
+    std::size_t steps = 0;
     while (true)
     {
         StateRuntimedata* d = p_data.getData(this);
@@ -180,6 +186,16 @@ bool Statechart::dispatch(Metadata& p_data, Event* p_event, Parameter& p_param)
         if (!c->dispatch(p_data, nullptr, p_param))
         {
             break;
+        }
+        if (++steps >= m_infiniteLoopThreshold)
+        {
+            throw InfiniteLoopException(
+                "Statechart <" + name() + ">: more than " +
+                std::to_string(m_infiniteLoopThreshold) +
+                " consecutive trigger-less transitions; the model very "
+                "likely contains a cycle of unguarded transitions. Use "
+                "setInfiniteLoopThreshold() to raise the limit if this is "
+                "intentional.");
         }
     }
     return rc;
@@ -218,7 +234,7 @@ void Statechart::dispatchAsynchron(Metadata& p_data,
         return;
     }
 
-    if (auto* timeout = dynamic_cast<TimeoutEvent*>(p_event.get()))
+    if (const auto* timeout = dynamic_cast<TimeoutEvent*>(p_event.get()))
     {
         auto entry = std::make_shared<EventQueueEntry>(this,
                                                        this,

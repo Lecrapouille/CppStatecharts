@@ -50,4 +50,24 @@ public:
     }
 };
 
+/**
+ * @brief Exception thrown by @c Statechart::dispatch() when the inner
+ *        trigger-less transition loop fires more than the configured number
+ *        of steps.
+ *
+ * A trigger-less transition is one without an event nor a guard, or whose
+ * guard is permanently true. When such transitions form a cycle the
+ * dispatch loop never terminates. The framework breaks the loop by
+ * throwing this exception so the user can spot the modelling mistake.
+ */
+class InfiniteLoopException: public StatechartException
+{
+public:
+
+    explicit InfiniteLoopException(const std::string& p_reason)
+        : StatechartException(p_reason)
+    {
+    }
+};
+
 } // namespace statechart

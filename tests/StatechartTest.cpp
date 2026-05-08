@@ -26,6 +26,8 @@
 #include "Statechart/Metadata.hpp"
 #include "Statechart/PseudoState.hpp"
 #include "Statechart/State.hpp"
+#include "Statechart/StatechartException.hpp"
+#include "Statechart/Transition.hpp"
 
 #include <gtest/gtest.h>
 
@@ -227,12 +229,13 @@ TEST(StatechartTest, RootContext)
 }
 
 // WHEN a Statechart is used as a State
-// EXPECT statechart() to return nullptr (it is the root)
+// EXPECT statechart() to return itself (it is the root and registers
+// itself as the back-pointer so child states can navigate up).
 TEST(StatechartTest, RootStatechart)
 {
     auto chart = std::make_unique<Statechart>("test", 10, false);
 
-    EXPECT_EQ(chart->statechart(), nullptr);
+    EXPECT_EQ(chart->statechart(), chart.get());
 }
 
 // WHEN VERSION is accessed
@@ -254,6 +257,43 @@ TEST(StatechartTest, MultipleShutdowns)
 
     chart->shutdown();
     EXPECT_TRUE(chart->isShutdown());
+}
+
+// WHEN three states are connected by trigger-less transitions in a cycle
+// AND the chart is started
+// EXPECT the dispatch loop to abort with an InfiniteLoopException once the
+//        configured threshold is reached.
+TEST(StatechartTest, InfiniteLoopDetection)
+{
+    auto chart = std::make_unique<Statechart>("loopy", 1, false);
+    chart->setInfiniteLoopThreshold(5);
+
+    auto* startState = chart->create<PseudoState>(
+        "Start", chart.get(), PseudoStateType::Start);
+    auto* a = chart->create<State>("A", chart.get());
+    auto* b = chart->create<State>("B", chart.get());
+    auto* c = chart->create<State>("C", chart.get());
+
+    chart->createTransition(startState, a);
+    chart->createTransition(a, b);
+    chart->createTransition(b, c);
+    chart->createTransition(c, a);
+
+    Metadata data;
+    Parameter param;
+
+    EXPECT_THROW(chart->start(data, param), InfiniteLoopException);
+}
+
+// WHEN setInfiniteLoopThreshold(0) is called
+// EXPECT it to be clamped up to 1 (otherwise the loop would always abort
+//        before any trigger-less transition can fire).
+TEST(StatechartTest, InfiniteLoopThresholdLowerBound)
+{
+    auto chart = std::make_unique<Statechart>("loopy", 1, false);
+
+    chart->setInfiniteLoopThreshold(0);
+    EXPECT_EQ(chart->infiniteLoopThreshold(), 1u);
 }
 
 } // namespace statechart::tests

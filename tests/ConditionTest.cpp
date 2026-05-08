@@ -24,8 +24,10 @@
 #include "Statechart/Condition.hpp"
 #include "Helpers.hpp"
 #include "Statechart/Metadata.hpp"
+#include "Statechart/PseudoState.hpp"
 #include "Statechart/State.hpp"
 #include "Statechart/Statechart.hpp"
+#include "Statechart/Transition.hpp"
 
 #include <gtest/gtest.h>
 
@@ -41,7 +43,6 @@ TEST(ConditionTest, Constructor)
 
     auto* condition = chart->create<Condition>("Condition",
                                                chart.get(),
-                                               chart.get(),
                                                makeTestGuard(1),
                                                state1,
                                                state2);
@@ -50,11 +51,15 @@ TEST(ConditionTest, Constructor)
     EXPECT_EQ(condition->type(), PseudoStateType::Junction);
 }
 
-// WHEN a Condition is activated with a guard that evaluates to true
-// EXPECT the whenTrue path to be taken
+// WHEN a Condition is reached with a guard that evaluates to true
+// EXPECT the whenTrue branch to be taken (after a dispatch from the Start
+// pseudo-state into the Condition junction).
 TEST(ConditionTest, GuardEvaluatesToTrue)
 {
     auto chart = std::make_unique<Statechart>("test", 10, false);
+
+    auto* start = chart->create<PseudoState>(
+        "Start", chart.get(), PseudoStateType::Start);
 
     auto* trueState = chart->create<State>(
         "TrueState", chart.get(), makeTestAction("trueEntry", "T"));
@@ -62,28 +67,29 @@ TEST(ConditionTest, GuardEvaluatesToTrue)
     auto* falseState = chart->create<State>(
         "FalseState", chart.get(), makeTestAction("falseEntry", "F"));
 
-    auto* condition = chart->create<Condition>("Condition",
-                                               chart.get(),
-                                               chart.get(),
-                                               makeTestGuard(1),
-                                               trueState,
-                                               falseState);
+    auto* condition = chart->create<Condition>(
+        "Condition", chart.get(), makeTestGuard(1), trueState, falseState);
+
+    chart->createTransition(start, condition);
 
     TestParameter param;
     param.guardvalue = 1;
     Metadata data;
 
-    condition->activate(data, param);
+    chart->start(data, param);
 
-    EXPECT_NE(param.path.find("T:trueEntry"), std::string::npos);
-    EXPECT_EQ(param.path.find("F:falseEntry"), std::string::npos);
+    EXPECT_TRUE(data.isActive(trueState));
+    EXPECT_FALSE(data.isActive(falseState));
 }
 
-// WHEN a Condition is activated with a guard that evaluates to false
-// EXPECT the otherwise path to be taken
+// WHEN a Condition is reached with a guard that evaluates to false
+// EXPECT the otherwise branch to be taken
 TEST(ConditionTest, GuardEvaluatesToFalse)
 {
     auto chart = std::make_unique<Statechart>("test", 10, false);
+
+    auto* start = chart->create<PseudoState>(
+        "Start", chart.get(), PseudoStateType::Start);
 
     auto* trueState = chart->create<State>(
         "TrueState", chart.get(), makeTestAction("trueEntry", "T"));
@@ -91,21 +97,19 @@ TEST(ConditionTest, GuardEvaluatesToFalse)
     auto* falseState = chart->create<State>(
         "FalseState", chart.get(), makeTestAction("falseEntry", "F"));
 
-    auto* condition = chart->create<Condition>("Condition",
-                                               chart.get(),
-                                               chart.get(),
-                                               makeTestGuard(1),
-                                               trueState,
-                                               falseState);
+    auto* condition = chart->create<Condition>(
+        "Condition", chart.get(), makeTestGuard(1), trueState, falseState);
+
+    chart->createTransition(start, condition);
 
     TestParameter param;
     param.guardvalue = 0;
     Metadata data;
 
-    condition->activate(data, param);
+    chart->start(data, param);
 
-    EXPECT_EQ(param.path.find("T:trueEntry"), std::string::npos);
-    EXPECT_NE(param.path.find("F:falseEntry"), std::string::npos);
+    EXPECT_FALSE(data.isActive(trueState));
+    EXPECT_TRUE(data.isActive(falseState));
 }
 
 // WHEN a Condition name is changed
@@ -117,7 +121,7 @@ TEST(ConditionTest, SetName)
     auto* state2 = chart->create<State>("State2", chart.get());
 
     auto* condition = chart->create<Condition>(
-        "OldName", chart.get(), chart.get(), makeTestGuard(1), state1, state2);
+        "OldName", chart.get(), makeTestGuard(1), state1, state2);
 
     EXPECT_EQ(condition->name(), "OldName");
 
@@ -135,7 +139,6 @@ TEST(ConditionTest, PolymorphicBehavior)
     auto* state2 = chart->create<State>("State2", chart.get());
 
     auto* condition = chart->create<Condition>("Condition",
-                                               chart.get(),
                                                chart.get(),
                                                makeTestGuard(1),
                                                state1,
@@ -160,7 +163,6 @@ TEST(ConditionTest, OwningStatechart)
 
     auto* condition = chart->create<Condition>("Condition",
                                                chart.get(),
-                                               chart.get(),
                                                makeTestGuard(1),
                                                state1,
                                                state2);
@@ -177,7 +179,6 @@ TEST(ConditionTest, ParentContext)
     auto* state2 = chart->create<State>("State2", chart.get());
 
     auto* condition = chart->create<Condition>("Condition",
-                                               chart.get(),
                                                chart.get(),
                                                makeTestGuard(1),
                                                state1,
@@ -198,10 +199,10 @@ TEST(ConditionTest, MultipleConditions)
     auto* state4 = chart->create<State>("State4", chart.get());
 
     auto* cond1 = chart->create<Condition>(
-        "Cond1", chart.get(), chart.get(), makeTestGuard(1), state1, state2);
+        "Cond1", chart.get(), makeTestGuard(1), state1, state2);
 
     auto* cond2 = chart->create<Condition>(
-        "Cond2", chart.get(), chart.get(), makeTestGuard(2), state3, state4);
+        "Cond2", chart.get(), makeTestGuard(2), state3, state4);
 
     EXPECT_NE(cond1, cond2);
     EXPECT_EQ(cond1->name(), "Cond1");
@@ -217,7 +218,6 @@ TEST(ConditionTest, EntryAndExitActions)
     auto* state2 = chart->create<State>("State2", chart.get());
 
     auto* condition = chart->create<Condition>("Condition",
-                                               chart.get(),
                                                chart.get(),
                                                makeTestGuard(1),
                                                state1,

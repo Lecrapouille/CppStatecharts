@@ -147,4 +147,18 @@ TEST(StatechartExceptionTest, SpecialCharactersInMessage)
     }
 }
 
+// WHEN an InfiniteLoopException is thrown
+// EXPECT it to be catchable as StatechartException via polymorphism
+TEST(StatechartExceptionTest, InfiniteLoopExceptionIsStatechartException)
+{
+    try
+    {
+        throw InfiniteLoopException("loop detected");
+    }
+    catch (const StatechartException& e)
+    {
+        EXPECT_STREQ(e.what(), "loop detected");
+    }
+}
+
 } // namespace statechart::tests

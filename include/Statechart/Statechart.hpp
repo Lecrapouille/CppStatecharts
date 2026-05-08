@@ -221,6 +221,33 @@ public:
     /** @brief Returns @c true if the threadpool is shut down. */
     bool isShutdown() const;
 
+    /**
+     * @brief Sets the maximum number of trigger-less transitions that
+     *        @c dispatch() is allowed to fire in a single invocation.
+     *
+     * Trigger-less transitions are transitions without event/guard (or
+     * whose guard is permanently true). They are evaluated in a loop after
+     * the user-supplied event has been processed. If that loop runs more
+     * than @p p_max times an @c InfiniteLoopException is thrown, which
+     * usually signals a modelling mistake (a cycle of trigger-less
+     * transitions).
+     *
+     * The default value is 1000.
+     *
+     * @param p_max Maximum number of consecutive trigger-less steps. Must
+     *              be > 0.
+     */
+    void setInfiniteLoopThreshold(std::size_t p_max)
+    {
+        m_infiniteLoopThreshold = p_max == 0 ? 1 : p_max;
+    }
+
+    /** @brief Returns the configured infinite-loop detection threshold. */
+    std::size_t infiniteLoopThreshold() const
+    {
+        return m_infiniteLoopThreshold;
+    }
+
 private:
 
     void timeoutLoop();
@@ -239,6 +266,10 @@ private:
     mutable std::mutex m_pendingMutex;
     std::thread m_timeoutThread;
     std::atomic<bool> m_running{false};
+
+    /// @brief Max trigger-less transitions before throwing
+    ///        @c InfiniteLoopException. See @c setInfiniteLoopThreshold().
+    std::size_t m_infiniteLoopThreshold = 1000;
 
     friend class State;
     friend class EventQueueEntry;

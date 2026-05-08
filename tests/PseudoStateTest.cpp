@@ -23,8 +23,10 @@
 
 #include "Statechart/PseudoState.hpp"
 #include "Helpers.hpp"
+#include "Statechart/HierarchicalState.hpp"
 #include "Statechart/Metadata.hpp"
 #include "Statechart/Statechart.hpp"
+#include "Statechart/Transition.hpp"
 
 #include <gtest/gtest.h>
 

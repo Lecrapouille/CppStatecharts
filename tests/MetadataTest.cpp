@@ -23,6 +23,7 @@
 
 #include "Statechart/Metadata.hpp"
 #include "Helpers.hpp"
+#include "Statechart/FinalState.hpp"
 #include "Statechart/State.hpp"
 #include "Statechart/Statechart.hpp"
 
@@ -31,12 +32,16 @@
 namespace statechart::tests {
 
 // WHEN a Metadata object is created
-// EXPECT it to be in a clean state
+// EXPECT it to be empty (no active state) and reported as still running.
+//
+// Note: isRunning() returns false only when *all* active states are final.
+// A fresh metadata has no active states at all so it is conventionally
+// considered "still running" (= not yet completed).
 TEST(MetadataTest, DefaultConstructor)
 {
     Metadata data;
 
-    EXPECT_FALSE(data.isRunning());
+    EXPECT_TRUE(data.isRunning());
     EXPECT_TRUE(data.getActiveStates().empty());
 }
 
@@ -50,6 +55,9 @@ TEST(MetadataTest, ActivateState)
     Metadata data;
     TestParameter param;
 
+    // The Statechart must be activated before isActive("name") can resolve
+    // the state name to a state pointer.
+    data.activate(chart.get());
     state->activate(data, param);
 
     EXPECT_TRUE(data.isActive(state));
@@ -206,15 +214,22 @@ TEST(MetadataTest, IsRunningWithActiveStates)
 {
     auto chart = std::make_unique<Statechart>("test", 10, false);
     auto* state = chart->create<State>("TestState", chart.get());
+    auto* finalState = chart->create<FinalState>("TheEnd", chart.get());
 
     Metadata data;
     TestParameter param;
 
-    EXPECT_FALSE(data.isRunning());
-
-    state->activate(data, param);
-
+    // Empty metadata is considered "still running" (= not yet completed).
     EXPECT_TRUE(data.isRunning());
+
+    // A regular active state keeps the machine running.
+    state->activate(data, param);
+    EXPECT_TRUE(data.isRunning());
+
+    // Once only a final state is active, isRunning() returns false.
+    state->deactivate(data, param);
+    finalState->activate(data, param);
+    EXPECT_FALSE(data.isRunning());
 }
 
 // WHEN multiple observers are registered

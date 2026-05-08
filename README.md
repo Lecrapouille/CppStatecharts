@@ -2,11 +2,9 @@
 
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL_v2.1-blue.svg)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
 
-[This project](https://github.com/Lecrapouille/CppStatecharts) is a C++20 port of the [Java UML statechart framework](https://github.com/klangfarbe/UML-Statechart-Framework-for-Java) originally written by Christian Mocek (License: LGPL v2.1),implementing the semantics and syntax of UML statecharts.
+[CppStatecharts](https://github.com/Lecrapouille/CppStatecharts) is a C++20 port of the [Java UML statechart framework](https://github.com/klangfarbe/UML-Statechart-Framework-for-Java) originally written by Christian Mocek (License: LGPL v2.1) implementing the semantics and syntax of UML statecharts. [PlantUMLStatecharts](https://github.com/Lecrapouille/PlantUMLStatecharts) generates from [PlantUML statecharts](https://plantuml.com/en/state-diagram) code using this library.
 
 ## Compilation
-
-Requires a C++20 compiler
 
 ```sh
 git clone https://github.com/Lecrapouille/CppStatecharts
@@ -28,14 +26,8 @@ You can test the example:
 | Document | Description |
 | --- | --- |
 | [Statecharts](doc/statecharts.md) | Introduction to UML statechart concepts (states, transitions, hierarchy, concurrency, history, fork/join). |
-| [Getting started](doc/getting-started.md) | Step-by-step C++ walkthrough mirroring [`doc/examples/GettingStarted/getting-started.cpp`](doc/examples/getting-started.cpp). |
-| [Architecture](doc/architecture.md) | Source layout, ownership model, threading, deviations from the Java API. |
-| [PlantUML](doc/plantuml.md) | PlantUML translator: command line, accepted syntax, code-injection directives, build pipeline. |
+| [Getting started](doc/getting-started.md) | Step-by-step C++ walkthrough mirroring [getting-started.cpp](doc/examples/getting-started.cpp). |
 | [References](doc/references.md) | Bibliography and further reading. |
-
-## Examples
-
-- [`getting started`](doc/examples/GettingStarted/getting-started.cpp) — runnable port of a classical `start → b → c → ...` hierarchical statechart used in the [getting started](doc/getting-started.md) walkthrough.
 
 ## Credits and license
 
