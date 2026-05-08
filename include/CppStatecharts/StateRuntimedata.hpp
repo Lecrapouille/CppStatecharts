@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "Statechart/forward.hpp"
+#include "CppStatecharts/forward.hpp"
 
 #include <chrono>
 #include <vector>

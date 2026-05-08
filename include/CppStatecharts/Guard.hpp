@@ -23,31 +23,11 @@
 
 #pragma once
 
-#include "Statechart/Transition.hpp"
-
-namespace statechart {
-
 /**
- * @brief Self-transition that runs an action without exiting/re-entering
- *        the source state.
+ * @file Guard.hpp
+ * @brief Definition of the @c statechart::Guard callback alias.
  *
- * Internal transitions must always carry a triggering event. They never
- * touch the entry/exit actions of the state, only the supplied action.
+ * See @c Action.hpp for the rationale: the alias itself lives in
+ * @c forward.hpp and this header only re-exports it for client code.
  */
-class InternalTransition: public Transition
-{
-public:
-
-    InternalTransition(State* p_state, Event* p_event, Action p_action);
-    InternalTransition(State* p_state,
-                       Event* p_event,
-                       Guard p_guard,
-                       Action p_action);
-
-    ~InternalTransition() override = default;
-
-    bool execute(Event* p_event, Metadata& p_data, Parameter& p_param) override;
-    bool allowed(Metadata& p_data, Parameter& p_param) override;
-};
-
-} // namespace statechart
+#include "CppStatecharts/forward.hpp"

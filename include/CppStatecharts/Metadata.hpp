@@ -23,8 +23,8 @@
 
 #pragma once
 
-#include "Statechart/StateRuntimedata.hpp"
-#include "Statechart/forward.hpp"
+#include "CppStatecharts/StateRuntimedata.hpp"
+#include "CppStatecharts/forward.hpp"
 
 #include <functional>
 #include <memory>

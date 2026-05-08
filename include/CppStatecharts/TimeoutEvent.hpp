@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "Statechart/Event.hpp"
+#include "CppStatecharts/Event.hpp"
 
 #include <cstdint>
 

@@ -12,7 +12,7 @@ TARGET_DESCRIPTION := Gumball distributor example
 include $(M)/project/Makefile
 
 CURRENT_DIR := $(P)/doc/examples/Gumball
-LIBRARY_DIR := $(P)/src/Statechart
+LIBRARY_DIR := $(P)/src
 
 INCLUDES += $(CURRENT_DIR) $(P)/include
 VPATH += $(CURRENT_DIR) $(LIBRARY_DIR)

@@ -21,14 +21,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include "Statechart/ConcurrentState.hpp"
+#include "CppStatecharts/ConcurrentState.hpp"
 
-#include "Statechart/FinalState.hpp"
-#include "Statechart/HierarchicalState.hpp"
-#include "Statechart/Metadata.hpp"
-#include "Statechart/Parameter.hpp"
-#include "Statechart/StateRuntimedata.hpp"
-#include "Statechart/Transition.hpp"
+#include "CppStatecharts/FinalState.hpp"
+#include "CppStatecharts/HierarchicalState.hpp"
+#include "CppStatecharts/Metadata.hpp"
+#include "CppStatecharts/Parameter.hpp"
+#include "CppStatecharts/StateRuntimedata.hpp"
+#include "CppStatecharts/Transition.hpp"
 
 namespace statechart {
 

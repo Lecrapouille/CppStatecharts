@@ -15,6 +15,14 @@ make -j8
 sudo make install
 ```
 
+In your code:
+
+```cpp
+#include <CppStatecharts/CppStatecharts.hpp>
+```
+
+Use `-I…/include` pointing at this repo (or the installed prefix) so the compiler finds the `CppStatecharts/` directory.
+
 You can test the example:
 
 ```sh

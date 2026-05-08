@@ -12,7 +12,7 @@ TARGET_DESCRIPTION := RichMan example: collecting coins
 include $(M)/project/Makefile
 
 CURRENT_DIR := $(P)/doc/examples/RichMan
-LIBRARY_DIR := $(P)/src/Statechart
+LIBRARY_DIR := $(P)/src
 
 INCLUDES += $(CURRENT_DIR) $(P)/include
 VPATH += $(CURRENT_DIR) $(LIBRARY_DIR)

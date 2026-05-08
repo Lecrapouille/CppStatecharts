@@ -21,7 +21,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include "Statechart/DelayQueue.hpp"
+#include "CppStatecharts/DelayQueue.hpp"
 
 #include <chrono>
 #include <gtest/gtest.h>

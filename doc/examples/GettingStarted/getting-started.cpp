@@ -20,17 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include "Statechart/ConcurrentState.hpp"
-#include "Statechart/Condition.hpp"
-#include "Statechart/FinalState.hpp"
-#include "Statechart/HierarchicalState.hpp"
-#include "Statechart/Metadata.hpp"
-#include "Statechart/Parameter.hpp"
-#include "Statechart/PseudoState.hpp"
-#include "Statechart/State.hpp"
-#include "Statechart/Statechart.hpp"
-#include "Statechart/TimeoutEvent.hpp"
-#include "Statechart/Transition.hpp"
+#include <CppStatecharts/CppStatecharts.hpp>
 
 #include <chrono>
 #include <iostream>

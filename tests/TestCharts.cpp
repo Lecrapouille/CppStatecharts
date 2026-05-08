@@ -24,16 +24,16 @@
 #include "TestCharts.hpp"
 #include "Helpers.hpp"
 
-#include "Statechart/ConcurrentState.hpp"
-#include "Statechart/Condition.hpp"
-#include "Statechart/FinalState.hpp"
-#include "Statechart/HierarchicalState.hpp"
-#include "Statechart/InternalTransition.hpp"
-#include "Statechart/PseudoState.hpp"
-#include "Statechart/State.hpp"
-#include "Statechart/Statechart.hpp"
-#include "Statechart/TimeoutEvent.hpp"
-#include "Statechart/Transition.hpp"
+#include "CppStatecharts/ConcurrentState.hpp"
+#include "CppStatecharts/Condition.hpp"
+#include "CppStatecharts/FinalState.hpp"
+#include "CppStatecharts/HierarchicalState.hpp"
+#include "CppStatecharts/InternalTransition.hpp"
+#include "CppStatecharts/PseudoState.hpp"
+#include "CppStatecharts/State.hpp"
+#include "CppStatecharts/Statechart.hpp"
+#include "CppStatecharts/TimeoutEvent.hpp"
+#include "CppStatecharts/Transition.hpp"
 
 namespace statechart::tests {
 

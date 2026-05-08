@@ -21,10 +21,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include "Statechart/Condition.hpp"
+#include "CppStatecharts/Condition.hpp"
 
-#include "Statechart/Statechart.hpp"
-#include "Statechart/Transition.hpp"
+#include "CppStatecharts/Statechart.hpp"
+#include "CppStatecharts/Transition.hpp"
 
 #include <utility>
 

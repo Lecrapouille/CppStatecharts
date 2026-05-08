@@ -21,13 +21,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include "Statechart/EventQueueEntry.hpp"
+#include "CppStatecharts/EventQueueEntry.hpp"
 
-#include "Statechart/Event.hpp"
-#include "Statechart/Metadata.hpp"
-#include "Statechart/Parameter.hpp"
-#include "Statechart/State.hpp"
-#include "Statechart/Statechart.hpp"
+#include "CppStatecharts/Event.hpp"
+#include "CppStatecharts/Metadata.hpp"
+#include "CppStatecharts/Parameter.hpp"
+#include "CppStatecharts/State.hpp"
+#include "CppStatecharts/Statechart.hpp"
 
 #include <sstream>
 

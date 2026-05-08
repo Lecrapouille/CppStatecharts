@@ -26,13 +26,7 @@
  * threshold is lowered here to keep the demo output short.
  */
 
-#include "Statechart/Metadata.hpp"
-#include "Statechart/Parameter.hpp"
-#include "Statechart/PseudoState.hpp"
-#include "Statechart/State.hpp"
-#include "Statechart/Statechart.hpp"
-#include "Statechart/StatechartException.hpp"
-#include "Statechart/Transition.hpp"
+#include <CppStatecharts/CppStatecharts.hpp>
 
 #include <iostream>
 #include <memory>

@@ -22,14 +22,7 @@
  *     Yeah --> FindQuarter : / yes
  */
 
-#include "Statechart/Condition.hpp"
-#include "Statechart/Event.hpp"
-#include "Statechart/Metadata.hpp"
-#include "Statechart/Parameter.hpp"
-#include "Statechart/PseudoState.hpp"
-#include "Statechart/State.hpp"
-#include "Statechart/Statechart.hpp"
-#include "Statechart/Transition.hpp"
+#include <CppStatecharts/CppStatecharts.hpp>
 
 #include <iostream>
 #include <memory>

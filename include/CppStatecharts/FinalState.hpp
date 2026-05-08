@@ -23,11 +23,33 @@
 
 #pragma once
 
+#include "CppStatecharts/State.hpp"
+
+namespace statechart {
+
 /**
- * @file Guard.hpp
- * @brief Definition of the @c statechart::Guard callback alias.
+ * @brief Marker state representing the end of a statechart or sub-region.
  *
- * See @c Action.hpp for the rationale: the alias itself lives in
- * @c forward.hpp and this header only re-exports it for client code.
+ * @c FinalState reuses the regular @c State semantics with no additional
+ * behaviour: detection is performed via @c dynamic_cast at call sites.
  */
-#include "Statechart/forward.hpp"
+class FinalState: public State
+{
+public:
+
+    /**
+     * @brief Creates a final state attached to @p p_parent.
+     *
+     * @param p_name   Unique state name.
+     * @param p_parent Parent context (must not be @c nullptr).
+     * @param p_chart  Owning statechart (must not be @c nullptr).
+     */
+    FinalState(std::string p_name, Context* p_parent, Statechart* p_chart)
+        : State(std::move(p_name), p_parent, p_chart)
+    {
+    }
+
+    ~FinalState() override = default;
+};
+
+} // namespace statechart

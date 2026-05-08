@@ -24,10 +24,10 @@
 #include "Helpers.hpp"
 #include "TestCharts.hpp"
 
-#include "Statechart/FinalState.hpp"
-#include "Statechart/Metadata.hpp"
-#include "Statechart/StateRuntimedata.hpp"
-#include "Statechart/Statechart.hpp"
+#include "CppStatecharts/FinalState.hpp"
+#include "CppStatecharts/Metadata.hpp"
+#include "CppStatecharts/StateRuntimedata.hpp"
+#include "CppStatecharts/Statechart.hpp"
 
 #include <chrono>
 #include <thread>

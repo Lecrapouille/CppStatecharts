@@ -21,19 +21,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include "Statechart/Statechart.hpp"
+#include "CppStatecharts/Statechart.hpp"
 
-#include "Statechart/Event.hpp"
-#include "Statechart/EventQueueEntry.hpp"
-#include "Statechart/InternalTransition.hpp"
-#include "Statechart/Metadata.hpp"
-#include "Statechart/Parameter.hpp"
-#include "Statechart/PseudoState.hpp"
-#include "Statechart/StateRuntimedata.hpp"
-#include "Statechart/StatechartException.hpp"
-#include "Statechart/ThreadPool.hpp"
-#include "Statechart/TimeoutEvent.hpp"
-#include "Statechart/Transition.hpp"
+#include "CppStatecharts/Event.hpp"
+#include "CppStatecharts/EventQueueEntry.hpp"
+#include "CppStatecharts/InternalTransition.hpp"
+#include "CppStatecharts/Metadata.hpp"
+#include "CppStatecharts/Parameter.hpp"
+#include "CppStatecharts/PseudoState.hpp"
+#include "CppStatecharts/StateRuntimedata.hpp"
+#include "CppStatecharts/StatechartException.hpp"
+#include "CppStatecharts/ThreadPool.hpp"
+#include "CppStatecharts/TimeoutEvent.hpp"
+#include "CppStatecharts/Transition.hpp"
 
 #include <chrono>
 #include <utility>

@@ -21,7 +21,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include "Statechart/Parameter.hpp"
+#include "CppStatecharts/Parameter.hpp"
 #include "Helpers.hpp"
 
 #include <gtest/gtest.h>

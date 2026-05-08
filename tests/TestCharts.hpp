@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "Statechart/Statechart.hpp"
+#include "CppStatecharts/Statechart.hpp"
 
 #include <memory>
 

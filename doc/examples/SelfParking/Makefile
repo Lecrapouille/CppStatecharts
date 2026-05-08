@@ -12,7 +12,7 @@ TARGET_DESCRIPTION := Park-Assistant FSM example
 include $(M)/project/Makefile
 
 CURRENT_DIR := $(P)/doc/examples/SelfParking
-LIBRARY_DIR := $(P)/src/Statechart
+LIBRARY_DIR := $(P)/src
 
 INCLUDES += $(CURRENT_DIR) $(P)/include
 VPATH += $(CURRENT_DIR) $(LIBRARY_DIR)

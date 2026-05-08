@@ -21,12 +21,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include "Statechart/Context.hpp"
+#include "CppStatecharts/Context.hpp"
 #include "Helpers.hpp"
-#include "Statechart/HierarchicalState.hpp"
-#include "Statechart/Metadata.hpp"
-#include "Statechart/PseudoState.hpp"
-#include "Statechart/Statechart.hpp"
+#include "CppStatecharts/HierarchicalState.hpp"
+#include "CppStatecharts/Metadata.hpp"
+#include "CppStatecharts/PseudoState.hpp"
+#include "CppStatecharts/Statechart.hpp"
 
 #include <gtest/gtest.h>
 

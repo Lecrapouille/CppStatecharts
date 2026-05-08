@@ -23,40 +23,46 @@
 
 #pragma once
 
-#include "Statechart/PseudoState.hpp"
+#include "CppStatecharts/State.hpp"
 
 namespace statechart {
 
 /**
- * @brief Convenience pseudo-state that branches between two targets based
- *        on a guard.
+ * @brief Abstract base class for any state that can hold child states.
  *
- * It is implemented as a junction with two outgoing transitions: one
- * gated by @p p_guard leading to @p p_whenTrue, and an unconditional
- * fallback to @p p_otherwise.
+ * A @c Context exposes the @c startState pointer used by hierarchical and
+ * concurrent states (and by @c Statechart itself). Direct instantiation is
+ * forbidden: only @c HierarchicalState, @c ConcurrentState and
+ * @c Statechart derive from it.
  */
-class Condition: public PseudoState
+class Context: public State
 {
 public:
 
-    /**
-     * @brief Creates a junction-based condition node.
-     *
-     * @param p_name      Unique state name.
-     * @param p_parent    Parent context.
-     * @param p_chart     Owning statechart.
-     * @param p_guard     Guard evaluated to choose @p p_whenTrue.
-     * @param p_whenTrue  Target reached when @p p_guard returns @c true.
-     * @param p_otherwise Target reached otherwise.
-     */
-    Condition(std::string p_name,
-              Context* p_parent,
-              Statechart* p_chart,
-              Guard p_guard,
-              State* p_whenTrue,
-              State* p_otherwise);
+    Context(std::string p_name,
+            Context* p_parent,
+            Statechart* p_chart,
+            Action p_entryAction = {},
+            Action p_doAction = {},
+            Action p_exitAction = {});
 
-    ~Condition() override = default;
+    ~Context() override = default;
+
+    /** @brief Returns the start pseudo-state of this context, or @c nullptr. */
+    PseudoState* startState() const
+    {
+        return m_startState;
+    }
+
+protected:
+
+    PseudoState* m_startState = nullptr;
+
+    friend class PseudoState;
+    friend class HierarchicalState;
+    friend class ConcurrentState;
+    friend class Statechart;
+    friend class Transition;
 };
 
 } // namespace statechart

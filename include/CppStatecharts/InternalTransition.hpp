@@ -23,33 +23,31 @@
 
 #pragma once
 
-#include "Statechart/State.hpp"
+#include "CppStatecharts/Transition.hpp"
 
 namespace statechart {
 
 /**
- * @brief Marker state representing the end of a statechart or sub-region.
+ * @brief Self-transition that runs an action without exiting/re-entering
+ *        the source state.
  *
- * @c FinalState reuses the regular @c State semantics with no additional
- * behaviour: detection is performed via @c dynamic_cast at call sites.
+ * Internal transitions must always carry a triggering event. They never
+ * touch the entry/exit actions of the state, only the supplied action.
  */
-class FinalState: public State
+class InternalTransition: public Transition
 {
 public:
 
-    /**
-     * @brief Creates a final state attached to @p p_parent.
-     *
-     * @param p_name   Unique state name.
-     * @param p_parent Parent context (must not be @c nullptr).
-     * @param p_chart  Owning statechart (must not be @c nullptr).
-     */
-    FinalState(std::string p_name, Context* p_parent, Statechart* p_chart)
-        : State(std::move(p_name), p_parent, p_chart)
-    {
-    }
+    InternalTransition(State* p_state, Event* p_event, Action p_action);
+    InternalTransition(State* p_state,
+                       Event* p_event,
+                       Guard p_guard,
+                       Action p_action);
 
-    ~FinalState() override = default;
+    ~InternalTransition() override = default;
+
+    bool execute(Event* p_event, Metadata& p_data, Parameter& p_param) override;
+    bool allowed(Metadata& p_data, Parameter& p_param) override;
 };
 
 } // namespace statechart

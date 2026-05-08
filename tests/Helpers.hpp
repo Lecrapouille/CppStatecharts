@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include "Statechart/Action.hpp"
-#include "Statechart/Event.hpp"
-#include "Statechart/Guard.hpp"
-#include "Statechart/Parameter.hpp"
+#include "CppStatecharts/Action.hpp"
+#include "CppStatecharts/Event.hpp"
+#include "CppStatecharts/Guard.hpp"
+#include "CppStatecharts/Parameter.hpp"
 
 #include <string>
 

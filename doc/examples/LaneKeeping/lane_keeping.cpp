@@ -15,15 +15,36 @@
  * The LKS controls four boolean flags: LED_LKS, LED_lane, LED_steering and
  * servoing. The driver presses btn_LKS to enable/disable the system, and the
  * vehicle reports lane detection events.
+ *
+ * Equivalent statechart (PlantUML):
+ *
+ * [*] --> LKSModeOff
+ * LKSModeOff : comment / Line Keep System OFF
+ * LKSModeOn : comment / Line Keep System ON
+ * WaitDetect : comment / LKS is not detecting the lane
+ * DetectLane : comment / LKS is detecting crossing the lane
+ * FollowLane : comment / LKS is following the lane
+ *
+ * LKSModeOff --> LKSModeOn : btn_LKS \n--\n LED_LKS = Enable
+ * LKSModeOn --> LKSModeOff : btn_LKS \n--\n LED_LKS = Disable
+ * LKSModeOn -> DetectLane : detect \n--\n LED_lane = Enable
+ *
+ * DetectLane --> LKSModeOff : btn_LKS \n--\n LED_LKS = Disable; LED_lane =
+ * Disable DetectLane -> WaitDetect : not detect \n--\n LED_lane = Disable
+ * DetectLane --> FollowLane : set \n--\n LED_steering = Enable; servoing =
+ * Enable
+ *
+ * FollowLane --> WaitDetect : not detect \n--\n LED_lane = Disable;
+ * LED_steering = Disable; servoing = Disable FollowLane -> LKSModeOff : btn_LKS
+ * \n--\n LED_LKS = Disable; LED_lane = Disable; LED_steering = Disable;
+ * servoing = Disable FollowLane -> DetectLane : cancel \n--\n LED_steering =
+ * Disable; servoing = Disable
+ *
+ * WaitDetect -> DetectLane : detect \n--\n LED_lane = Enable
+ * WaitDetect -> LKSModeOff : btn_LKS \n--\n LED_LKS = Disable
  */
 
-#include "Statechart/Event.hpp"
-#include "Statechart/Metadata.hpp"
-#include "Statechart/Parameter.hpp"
-#include "Statechart/PseudoState.hpp"
-#include "Statechart/State.hpp"
-#include "Statechart/Statechart.hpp"
-#include "Statechart/Transition.hpp"
+#include <CppStatecharts/CppStatecharts.hpp>
 
 #include <iostream>
 #include <memory>
@@ -49,11 +70,12 @@ public:
     }
 };
 
-#define DECLARE_EVENT(name, label)                                             \
-    class name##Event: public Event                                            \
-    {                                                                          \
-    public:                                                                    \
-        name##Event() : Event(label) {}                                        \
+#define DECLARE_EVENT(name, label)      \
+    class name##Event: public Event     \
+    {                                   \
+    public:                             \
+                                        \
+        name##Event() : Event(label) {} \
     }
 
 DECLARE_EVENT(BtnLks, "btn_LKS");

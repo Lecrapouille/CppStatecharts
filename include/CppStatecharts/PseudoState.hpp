@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "Statechart/State.hpp"
+#include "CppStatecharts/State.hpp"
 
 namespace statechart {
 

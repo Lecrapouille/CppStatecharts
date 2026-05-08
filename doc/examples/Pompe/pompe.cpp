@@ -14,31 +14,31 @@
  *
  *  Equivalent statechart (PlantUML):
  *
- *      [*] --> PompeEnArret
- *      Default : entry / arretPompe()
- *      Default : do    / alarmeType3()
+ *      [*] --> PumpStopped
+ *      Default : entry / stopPump()
+ *      Default : do    / alarmType3()
  *
- *      state PompeEnMarche {
- *        state AttenteLiberationHM {
- *          MiseEnMarchePompe --> Attente40Secondes
- *          MiseEnMarchePompe : entry / marchePompe()
- *          Attente40Secondes --> Attente20Secondes : after40s
- *          Attente20Secondes --> Default : after20s
- *          Attente20Secondes : do / alarmeType1()
+ *      state PumpRunning {
+ *        state WaitForHMRelease {
+ *          StartPump --> Wait40Seconds
+ *          StartPump : entry / startPump()
+ *          Wait40Seconds --> Wait20Seconds : after40s
+ *          Wait20Seconds --> Default : after20s
+ *          Wait20Seconds : do / alarmType1()
  *        }
  *
- *        AttenteLiberationHM -> AttenteHM : falling HM
- *        AttenteHM : do / alarmeType2()
- *        Attente40Secondes <- AttenteHM : rising HM
- *        AttenteHM --> Default : after5s
+ *        WaitForHMRelease -> WaitForHM : falling HM
+ *        WaitForHM : do / alarmType2()
+ *        Wait40Seconds <- WaitForHM : rising HM
+ *        WaitForHM --> Default : after5s
  *      }
  *
- *      PompeEnArret --> MiseEnMarchePompe : BPM [HM && !AU && !DHM && !DPP]
- *      RemiseEnService -> PompeEnArret
- *      RemiseEnService <- Default : Acq
- *      PompeEnArret <-- PompeEnMarche : AU
- *      PompeEnArret <-- PompeEnMarche : BPA
- *      PompeEnArret <-- PompeEnMarche : DPP
+ *      PumpStopped --> StartPump : BPM [HM && !AU && !DHM && !DPP]
+ *      ReturnToService -> PumpStopped
+ *      ReturnToService <- Default : Acq
+ *      PumpStopped <-- PumpRunning : AU
+ *      PumpStopped <-- PumpRunning : BPA
+ *      PumpStopped <-- PumpRunning : DPP
  *
  *  Real timeouts are 40s / 20s / 5s. To keep the demo short, every delay is
  *  scaled down by a factor of 10 (`SIM_DIV`) so the run takes a few seconds.
@@ -48,20 +48,12 @@
  *    2. Wait ~2 s (= 20 s real time) -> pump still running.
  *    3. Press BPA                    -> pump stops.
  *    4. Press BPM again              -> pump restarts.
- *    5. Release HM (falling HM)      -> AttenteHM, alarm type 2.
- *    6. Press BPM (no effect, dead)  -> stays in AttenteHM.
- *    7. Press HM (rising HM)         -> back to Attente40Secondes.
+ *    5. Release HM (falling HM)      -> WaitForHM, alarm type 2.
+ *    6. Press BPM (no effect, dead)  -> stays in WaitForHM.
+ *    7. Press HM (rising HM)         -> back to Wait40Seconds.
  */
 
-#include "Statechart/Event.hpp"
-#include "Statechart/HierarchicalState.hpp"
-#include "Statechart/Metadata.hpp"
-#include "Statechart/Parameter.hpp"
-#include "Statechart/PseudoState.hpp"
-#include "Statechart/State.hpp"
-#include "Statechart/Statechart.hpp"
-#include "Statechart/TimeoutEvent.hpp"
-#include "Statechart/Transition.hpp"
+#include <CppStatecharts/CppStatecharts.hpp>
 
 #include <chrono>
 #include <iostream>
@@ -86,15 +78,16 @@ public:
 
     bool HM = true;   ///< Dead-man lever (held by operator).
     bool AU = false;  ///< Emergency stop button.
-    bool DHM = false; ///< HM defect.
-    bool DPP = false; ///< Water defect.
+    bool DHM = false; ///< HM fault.
+    bool DPP = false; ///< Water fault.
 };
 
-#define DECLARE_EVENT(name, label)                                             \
-    class name##Event: public Event                                            \
-    {                                                                          \
-    public:                                                                    \
-        name##Event() : Event(label) {}                                        \
+#define DECLARE_EVENT(name, label)      \
+    class name##Event: public Event     \
+    {                                   \
+    public:                             \
+                                        \
+        name##Event() : Event(label) {} \
     }
 
 DECLARE_EVENT(BPM, "BPM");
@@ -107,152 +100,134 @@ DECLARE_EVENT(Acq, "Acq");
 
 #undef DECLARE_EVENT
 
-Action marchePompe()
+Action startPump()
 {
-    return [](Metadata&, Parameter&) {
-        std::cout << "  >> marchePompe()\n";
-    };
+    return [](Metadata&, Parameter&) { std::cout << "  >> startPump()\n"; };
 }
 
-Action arretPompe()
+Action stopPump()
 {
-    return
-        [](Metadata&, Parameter&) { std::cout << "  >> arretPompe()\n"; };
+    return [](Metadata&, Parameter&) { std::cout << "  >> stopPump()\n"; };
 }
 
-Action alarme(int p_type)
+Action alarm(int type)
 {
-    return [p_type](Metadata&, Parameter&) {
-        std::cout << "  >> alarmeType" << p_type << "()\n";
+    return [type](Metadata&, Parameter&) {
+        std::cout << "  >> alarmType" << type << "()\n";
     };
 }
 
 Guard canStart()
 {
-    return [](Metadata const&, Parameter const& p_param) {
-        const auto& pp = static_cast<const PompeParameter&>(p_param);
+    return [](Metadata const&, Parameter const& param) {
+        const auto& pp = static_cast<const PompeParameter&>(param);
         return pp.HM && !pp.AU && !pp.DHM && !pp.DPP;
     };
 }
 
-void waitMs(std::int64_t p_ms)
+void waitMs(std::int64_t ms)
 {
-    std::this_thread::sleep_for(std::chrono::milliseconds(p_ms));
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
 } // namespace
 
 int main()
 {
-    auto chart = std::make_unique<Statechart>("Pompe", 2, false);
+    auto chart = std::make_unique<Statechart>("Pump", 2, false);
 
     auto* start = chart->create<PseudoState>(
         "start", chart.get(), PseudoStateType::Start);
 
-    auto* pompeArret = chart->create<State>(
-        "PompeEnArret",
-        chart.get(),
-        [](Metadata&, Parameter&) {
-            std::cout << "[PompeEnArret] pump idle\n";
+    auto* pumpStopped = chart->create<State>(
+        "PumpStopped", chart.get(), [](Metadata&, Parameter&) {
+            std::cout << "[PumpStopped] pump idle\n";
         });
 
-    auto* defaultState = chart->create<State>(
-        "Default",
-        chart.get(),
-        arretPompe(),
-        alarme(3));
+    auto* defaultState =
+        chart->create<State>("Default", chart.get(), stopPump(), alarm(3));
 
-    auto* remiseService = chart->create<State>(
-        "RemiseEnService",
-        chart.get(),
-        [](Metadata&, Parameter&) {
-            std::cout << "[RemiseEnService] returning to service\n";
+    auto* returnToService = chart->create<State>(
+        "ReturnToService", chart.get(), [](Metadata&, Parameter&) {
+            std::cout << "[ReturnToService] returning to service\n";
         });
 
-    auto* pompeMarche = chart->create<HierarchicalState>(
-        "PompeEnMarche",
-        chart.get(),
-        [](Metadata&, Parameter&) {
-            std::cout << "[PompeEnMarche] pump running\n";
+    auto* pumpRunning = chart->create<HierarchicalState>(
+        "PumpRunning", chart.get(), [](Metadata&, Parameter&) {
+            std::cout << "[PumpRunning] pump running\n";
         });
 
-    auto* attenteHmHier = chart->create<HierarchicalState>(
-        "AttenteLiberationHM", pompeMarche);
+    auto* waitForHMRelease =
+        chart->create<HierarchicalState>("WaitForHMRelease", pumpRunning);
 
-    auto* mehStart = chart->create<PseudoState>(
-        "mehStart", attenteHmHier, PseudoStateType::Start);
+    auto* whmrStart = chart->create<PseudoState>(
+        "whmrStart", waitForHMRelease, PseudoStateType::Start);
 
-    auto* miseEnMarche = chart->create<State>(
-        "MiseEnMarchePompe",
-        attenteHmHier,
-        marchePompe());
+    auto* startPumpState =
+        chart->create<State>("StartPump", waitForHMRelease, startPump());
 
-    auto* attente40 = chart->create<State>(
-        "Attente40Secondes",
-        attenteHmHier,
-        [](Metadata&, Parameter&) {
-            std::cout << "  [Attente40Secondes]\n";
+    auto* wait40 = chart->create<State>(
+        "Wait40Seconds", waitForHMRelease, [](Metadata&, Parameter&) {
+            std::cout << "  [Wait40Seconds]\n";
         });
 
-    auto* attente20 = chart->create<State>(
-        "Attente20Secondes",
-        attenteHmHier,
+    auto* wait20 = chart->create<State>(
+        "Wait20Seconds",
+        waitForHMRelease,
         [](Metadata&, Parameter&) {
-            std::cout << "  [Attente20Secondes] entering alarm window\n";
+            std::cout << "  [Wait20Seconds] entering alarm window\n";
         },
-        alarme(1));
+        alarm(1));
 
-    auto* attenteHM = chart->create<State>(
-        "AttenteHM",
-        pompeMarche,
+    auto* waitForHM = chart->create<State>(
+        "WaitForHM",
+        pumpRunning,
         [](Metadata&, Parameter&) {
-            std::cout << "  [AttenteHM] HM released, type-2 alarm\n";
+            std::cout << "  [WaitForHM] HM released, type-2 alarm\n";
         },
-        alarme(2));
+        alarm(2));
 
-    chart->createTransition(start, pompeArret);
+    chart->createTransition(start, pumpStopped);
 
-    chart->createTransition(pompeArret,
-                            miseEnMarche,
+    chart->createTransition(pumpStopped,
+                            startPumpState,
                             chart->createEvent<BPMEvent>(),
                             canStart());
 
-    chart->createTransition(mehStart, miseEnMarche);
-    chart->createTransition(miseEnMarche, attente40);
+    chart->createTransition(whmrStart, startPumpState);
+    chart->createTransition(startPumpState, wait40);
 
     // The original 40 s / 20 s / 5 s timeouts are scaled down by SIM_DIV so
     // the demo run completes in a few seconds.
-    chart->createTransition(attente40,
-                            attente20,
-                            chart->createEvent<TimeoutEvent>(TIMEOUT_40S_MS));
-    chart->createTransition(attente20,
-                            defaultState,
-                            chart->createEvent<TimeoutEvent>(TIMEOUT_20S_MS));
+    chart->createTransition(
+        wait40, wait20, chart->createEvent<TimeoutEvent>(TIMEOUT_40S_MS));
+    chart->createTransition(
+        wait20, defaultState, chart->createEvent<TimeoutEvent>(TIMEOUT_20S_MS));
 
     chart->createTransition(
-        attenteHmHier, attenteHM, chart->createEvent<FallingHMEvent>());
+        waitForHMRelease, waitForHM, chart->createEvent<FallingHMEvent>());
     chart->createTransition(
-        attenteHM, attente40, chart->createEvent<RisingHMEvent>());
-    chart->createTransition(attenteHM,
+        waitForHM, wait40, chart->createEvent<RisingHMEvent>());
+    chart->createTransition(waitForHM,
                             defaultState,
                             chart->createEvent<TimeoutEvent>(TIMEOUT_5S_MS));
 
     chart->createTransition(
-        pompeMarche, pompeArret, chart->createEvent<AUEvent>());
+        pumpRunning, pumpStopped, chart->createEvent<AUEvent>());
     chart->createTransition(
-        pompeMarche, pompeArret, chart->createEvent<BPAEvent>());
+        pumpRunning, pumpStopped, chart->createEvent<BPAEvent>());
     chart->createTransition(
-        pompeMarche, pompeArret, chart->createEvent<DPPEvent>());
+        pumpRunning, pumpStopped, chart->createEvent<DPPEvent>());
 
     chart->createTransition(
-        defaultState, remiseService, chart->createEvent<AcqEvent>());
-    chart->createTransition(remiseService, pompeArret);
+        defaultState, returnToService, chart->createEvent<AcqEvent>());
+    chart->createTransition(returnToService, pumpStopped);
 
     PompeParameter parameter;
     Metadata data;
 
-    std::cout << "=== Dead-Man pump controller (timeouts /"
-              << SIM_DIV << ") ===\n";
+    std::cout << "=== Dead-Man pump controller (timeouts /" << SIM_DIV
+              << ") ===\n";
     chart->start(data, parameter);
 
     BPMEvent bpm;
@@ -279,14 +254,15 @@ int main()
     std::cout << "\n>> [2] Press BPM again: restart the pump\n";
     chart->dispatch(data, &bpm, parameter);
 
-    std::cout << "\n>> [2] Wait a bit so the pump is well in Attente40s\n";
+    std::cout << "\n>> [2] Wait a bit so the pump is well in Wait40Seconds\n";
     waitMs(200);
 
     std::cout << "\n>> [2] Operator releases HM (falling HM): alarm type 2\n";
     parameter.HM = false;
     chart->dispatch(data, &fallingHM, parameter);
 
-    std::cout << "\n>> [2] Press BPM (does nothing: we are not in PompeEnArret)\n";
+    std::cout
+        << "\n>> [2] Press BPM (does nothing: we are not in PumpStopped)\n";
     chart->dispatch(data, &bpm, parameter);
 
     std::cout << "\n>> [2] Operator presses HM back (rising HM): resume\n";

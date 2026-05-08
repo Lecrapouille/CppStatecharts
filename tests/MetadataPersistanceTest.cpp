@@ -24,8 +24,8 @@
 #include "Helpers.hpp"
 #include "TestCharts.hpp"
 
-#include "Statechart/Metadata.hpp"
-#include "Statechart/Statechart.hpp"
+#include "CppStatecharts/Metadata.hpp"
+#include "CppStatecharts/Statechart.hpp"
 
 #include <gtest/gtest.h>
 

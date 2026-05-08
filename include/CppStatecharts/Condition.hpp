@@ -23,13 +23,40 @@
 
 #pragma once
 
+#include "CppStatecharts/PseudoState.hpp"
+
+namespace statechart {
+
 /**
- * @file Action.hpp
- * @brief Definition of the @c statechart::Action callback alias.
+ * @brief Convenience pseudo-state that branches between two targets based
+ *        on a guard.
  *
- * The actual alias lives in @c forward.hpp so that other headers can
- * forward-include only that file. This header exists so client code that
- * thinks of @c Action as a first-class type can simply write
- * @c \#include &lt;Statechart/Action.hpp&gt;.
+ * It is implemented as a junction with two outgoing transitions: one
+ * gated by @p p_guard leading to @p p_whenTrue, and an unconditional
+ * fallback to @p p_otherwise.
  */
-#include "Statechart/forward.hpp"
+class Condition: public PseudoState
+{
+public:
+
+    /**
+     * @brief Creates a junction-based condition node.
+     *
+     * @param p_name      Unique state name.
+     * @param p_parent    Parent context.
+     * @param p_chart     Owning statechart.
+     * @param p_guard     Guard evaluated to choose @p p_whenTrue.
+     * @param p_whenTrue  Target reached when @p p_guard returns @c true.
+     * @param p_otherwise Target reached otherwise.
+     */
+    Condition(std::string p_name,
+              Context* p_parent,
+              Statechart* p_chart,
+              Guard p_guard,
+              State* p_whenTrue,
+              State* p_otherwise);
+
+    ~Condition() override = default;
+};
+
+} // namespace statechart

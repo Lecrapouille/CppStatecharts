@@ -5,6 +5,15 @@ the [PlantUMLStatecharts](https://github.com/Lecrapouille/PlantUMLStatecharts)
 collection. Each example is a standalone executable demonstrating one or more
 features of the library.
 
+All examples include the umbrella header only:
+
+```cpp
+#include <CppStatecharts/CppStatecharts.hpp>
+```
+
+Pass `-I` *to the parent of the `CppStatecharts` folder* (typically the project's
+`include` directory) so this path resolves.
+
 ## How to build and run
 
 From the repository root:

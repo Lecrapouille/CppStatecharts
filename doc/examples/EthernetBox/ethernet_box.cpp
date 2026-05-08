@@ -11,15 +11,33 @@
 /**
  * @file ethernet_box.cpp
  * @brief Ethernet box manager example for pairing a phone via Wi-Fi.
+ *
+ * Equivalent statechart (PlantUML):
+ * [*] --> EthernetBoxOff
+ * EthernetBoxOff --> WifiDiscoverable : wifi powered on
+ * EthernetBoxOff <-- WifiDiscoverable : wifi powered off
+ * EthernetBoxOff <-- WifiDisconnected : wifi powered off
+
+ * WifiDiscoverable --> WifiConnected : pairing successful
+ * WifiDiscoverable <-- WifiConnected : long button press /  pairing_phone()
+ * WifiDiscoverable --> WifiDisconnected : Wifi failure
+ * WifiDiscoverable <-- WifiDisconnected : long button press / pairing_phone()
+ *
+ * WifiConnected --> WifiDisconnected : phone Wifi disconnected
+ *
+ * EthernetBoxOff : comment / Not available for pairing Wifi
+ * EthernetBoxOff : entry / led_off()
+ * WifiDiscoverable : comment / Avaialble for pairing or automatic connection or
+ * manual connection
+ * WifiDiscoverable : entry / led_blinking()
+ * WifiConnected : comment / Connected to phone via
+ * Wifi WifiConnected : entry / led_constant_glow()
+ * WifiConnected : on short button press / launch_home_screen()
+ * WifiDisconnected : comment / No Wifi connected
+ * WifiDisconnected : entry / led_glow()
  */
 
-#include "Statechart/Event.hpp"
-#include "Statechart/Metadata.hpp"
-#include "Statechart/Parameter.hpp"
-#include "Statechart/PseudoState.hpp"
-#include "Statechart/State.hpp"
-#include "Statechart/Statechart.hpp"
-#include "Statechart/Transition.hpp"
+#include <CppStatecharts/CppStatecharts.hpp>
 
 #include <iostream>
 #include <memory>
@@ -28,11 +46,12 @@ using namespace statechart;
 
 namespace {
 
-#define DECLARE_EVENT(name, label)                                             \
-    class name##Event: public Event                                            \
-    {                                                                          \
-    public:                                                                    \
-        name##Event() : Event(label) {}                                        \
+#define DECLARE_EVENT(name, label)      \
+    class name##Event: public Event     \
+    {                                   \
+    public:                             \
+                                        \
+        name##Event() : Event(label) {} \
     }
 
 DECLARE_EVENT(WifiOn, "wifi_powered_on");
@@ -59,14 +78,12 @@ Action ledGlow()
 }
 Action ledConstantGlow()
 {
-    return
-        [](Metadata&, Parameter&) { std::cout << "  LED: constant glow\n"; };
+    return [](Metadata&, Parameter&) { std::cout << "  LED: constant glow\n"; };
 }
 Action pairingPhone()
 {
-    return [](Metadata&, Parameter&) {
-        std::cout << "  ACTION: pairing phone\n";
-    };
+    return
+        [](Metadata&, Parameter&) { std::cout << "  ACTION: pairing phone\n"; };
 }
 Action launchHome()
 {
@@ -84,11 +101,11 @@ int main()
     auto* start = chart->create<PseudoState>(
         "start", chart.get(), PseudoStateType::Start);
 
-    auto* boxOff = chart->create<State>(
-        "EthernetBoxOff", chart.get(), ledOff());
+    auto* boxOff =
+        chart->create<State>("EthernetBoxOff", chart.get(), ledOff());
 
-    auto* discoverable = chart->create<State>(
-        "WifiDiscoverable", chart.get(), ledBlinking());
+    auto* discoverable =
+        chart->create<State>("WifiDiscoverable", chart.get(), ledBlinking());
 
     auto* connected =
         chart->create<State>("WifiConnected", chart.get(), ledConstantGlow());

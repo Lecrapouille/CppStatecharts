@@ -12,7 +12,7 @@ TARGET_DESCRIPTION := Triggers example: two events e with different guards
 include $(M)/project/Makefile
 
 CURRENT_DIR := $(P)/doc/examples/Triggers
-LIBRARY_DIR := $(P)/src/Statechart
+LIBRARY_DIR := $(P)/src
 
 INCLUDES += $(CURRENT_DIR) $(P)/include
 VPATH += $(CURRENT_DIR) $(LIBRARY_DIR)

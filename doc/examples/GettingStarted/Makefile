@@ -34,7 +34,7 @@ include $(M)/project/Makefile
 ###############################################################################
 # Inform Makefile where to find *.cpp files
 CURRENT_DIR := $(P)/doc/examples/GettingStarted
-LIBRARY_DIR := $(P)/src/Statechart
+LIBRARY_DIR := $(P)/src
 
 
 ###############################################################################

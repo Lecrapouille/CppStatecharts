@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include "Statechart/Context.hpp"
-#include "Statechart/DelayQueue.hpp"
-#include "Statechart/EventQueueEntry.hpp"
-#include "Statechart/StatechartException.hpp"
+#include "CppStatecharts/Context.hpp"
+#include "CppStatecharts/DelayQueue.hpp"
+#include "CppStatecharts/EventQueueEntry.hpp"
+#include "CppStatecharts/StatechartException.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -277,7 +277,7 @@ private:
 
 } // namespace statechart
 
-#include "Statechart/InternalTransition.hpp"
+#include "CppStatecharts/InternalTransition.hpp"
 
 namespace statechart {
 

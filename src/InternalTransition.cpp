@@ -21,11 +21,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include "Statechart/InternalTransition.hpp"
+#include "CppStatecharts/InternalTransition.hpp"
 
-#include "Statechart/Event.hpp"
-#include "Statechart/Metadata.hpp"
-#include "Statechart/Parameter.hpp"
+#include "CppStatecharts/Event.hpp"
+#include "CppStatecharts/Metadata.hpp"
+#include "CppStatecharts/Parameter.hpp"
 
 #include <utility>
 
